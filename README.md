@@ -1,3 +1,3 @@
 # haskeme
 
-This compiler translates a Scheme source code written with I-Expressions (indented expressions) to into S-Expressions (semantic expressions).
+This compiler translates Scheme source code written with I-Expressions (indented expressions) into S-Expressions (symbolic expressions).
