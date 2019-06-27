@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- |
--- Module      : CartanSubalgebra
+-- Module      : Haskeme
 -- Description : Implements functions for the Haskeme executable
 -- Copyright   : (c) Felix Springer, 2019
 -- License     : BSD3
@@ -18,11 +18,16 @@ module Haskeme ( IndentedLine (..)
 
 tabSize = 4
 
+type Indent = Int
+
 data IndentedLine = IndLine Indent String
                       deriving (Eq)
 
 instance Show IndentedLine where
   show (IndLine n line) = [ ' ' | _ <- [1..n] ] ++ line
+
+data Block = Block [IndentedLine]
+           | Block [Block]
 
 toIndentedLine :: String -> IndentedLine
 toIndentedLine line
@@ -44,9 +49,7 @@ toIndentedLineTab (IndLine n line)
   | head line == '\t' = toIndentedLineTab (IndLine (n + tabSize) (tail line))
   | otherwise         = (IndLine n line)
 
-type Indent = Int
+mainBlock :: String -> Block
+mainBlock prog = Block $ map toIndentedLine (lines prog)
 
-toBlocks :: Indent -> [IndentedLine] -> [IndentedLine] -> [[IndentedLine]]
-toBlocks _ [ ] block           = [ block ]
-toBlocks n ((IndLine m s):iLs) block
-  | m <= n     = block : toBlocks m iLs [ (IndLine m s) ]
+--toBlock :: Indent -> Block -> Block
