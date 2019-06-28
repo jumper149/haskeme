@@ -23,12 +23,14 @@ module Haskeme ( IndentedLine (..)
 
 
 
+-- | Set how many spaces an expanded tab takes.
 tabSize = 4
 
 
 
 type Indent = Int
 
+-- | Hold Indent and Line in a data type
 data IndentedLine = IndLine Indent String
                       deriving (Eq)
 
@@ -38,12 +40,6 @@ instance Show IndentedLine where
 -- | Returns the indent.
 indent ::  IndentedLine -> Indent
 indent (IndLine n _) = n
-
-data Block = Block [IndentedLine]
-           | Blocks [Block]
-             deriving (Show, Eq)
-
-
 
 -- | Transform a String (Line) into IndentedLine.
 toIndentedLine :: String -> IndentedLine
@@ -71,13 +67,9 @@ toIndentedLineTab (IndLine n line)
 
 
 
-seperatedBlock :: Block -> Bool
-seperatedBlock (Block [])         = True
-seperatedBlock (Block [l])        = True
-seperatedBlock (Block [l0,l1])    = indent l0 < indent l1
-seperatedBlock (Block (l0:l1:ls)) = ind0 < ind1 && (foldr (&&) True $ map (== ind1) $ map indent ls)
-  where ind0 = indent l0
-        ind1 = indent l1
+data Block = Block [IndentedLine]
+           | Blocks [Block]
+             deriving (Show, Eq)
 
 -- | Change String to IndentedLines.
 --   Remove empty lines.
@@ -112,6 +104,15 @@ blockLstoBlocks bs = Blocks $ removeNullBlocks bs
 
 nextIndent :: Block -> Indent
 nextIndent (Block ((IndLine n _):ls)) = n
+
+seperatedBlock :: Block -> Bool
+seperatedBlock (Block [])         = True
+seperatedBlock (Block [l])        = True
+seperatedBlock (Block [l0,l1])    = indent l0 < indent l1
+seperatedBlock (Block (l0:l1:ls)) = ind0 < ind1 && (foldr (&&) True $ map (== ind1) $ map indent ls)
+  where ind0 = indent l0
+        ind1 = indent l1
+
 
 
 toSExpr :: Block -> String
