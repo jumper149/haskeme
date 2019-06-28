@@ -14,11 +14,8 @@
 
 module Haskeme ( IndentedLine (..)
                , toIndentedLine
-               , Block (..)
-               , mainBlock
-               , sepBlocks
-               , blockLstoBlocks
-               , toSExpr
+               , stringToProgram
+               , progToSExprs
                ) where
 
 
@@ -65,65 +62,60 @@ toIndentedLineTab (IndLine n line)
   | head line == '\t' = toIndentedLineTab (IndLine (n + tabSize) (tail line))
   | otherwise         = (IndLine n line)
 
-
-
-data Block = Block [IndentedLine]
-           | Blocks [Block]
-             deriving (Show, Eq)
-
--- | Change String to IndentedLines.
---   Remove empty lines.
---   Wrap lines into a Block.
-mainBlock :: String -> Block
-mainBlock prog = Block $ filter notNullInd $ map toIndentedLine (lines prog)
-  where notNullInd :: IndentedLine -> Bool
-        notNullInd (IndLine _ l) = not $ null l
-
--- BROKEN!!! from this point on
-sepBlocks :: Indent -> Block -> Block -> [Block]
-sepBlocks _ (Block [])     b          = [ b ]
-sepBlocks n (Block (l:ls)) (Block ks)
-  | indent l == n = rec : sepBlocks n (Block ls) (Block [ l ])
-  | indent l > n  = sepBlocks n (Block ls) (Block (ks ++ [ l ]))
-  | indent l < n  = prevBlocks : nextBlocks
-  where prevBlocks = Blocks [ rec ]
-        nextBlocks = sepBlocks (indent l) (Block ls) (Block [ l ])
-        rec
-          | null ks                   = Block ks
-          | seperatedBlock (Block ks) = Block ks
-          | otherwise                 = Blocks $ sepBlocks nextInd (Block ks) (Block [])
-        nextInd = nextIndent (Block ks)
-
-removeNullBlocks :: [Block] -> [Block]
-removeNullBlocks bs = filter notNullBlock bs
-  where notNullBlock (Block ls) = not $ null ls
-        notNullBlock (Blocks bs) = not $ null bs
-
-blockLstoBlocks :: [Block] -> Block
-blockLstoBlocks bs = Blocks $ removeNullBlocks bs
-
-nextIndent :: Block -> Indent
-nextIndent (Block ((IndLine n _):ls)) = n
-
-seperatedBlock :: Block -> Bool
-seperatedBlock (Block [])         = True
-seperatedBlock (Block [l])        = True
-seperatedBlock (Block [l0,l1])    = indent l0 < indent l1
-seperatedBlock (Block (l0:l1:ls)) = ind0 < ind1 && (foldr (&&) True $ map (== ind1) $ map indent ls)
-  where ind0 = indent l0
-        ind1 = indent l1
+isEmptyIndentedLine :: IndentedLine -> Bool
+isEmptyIndentedLine (IndLine _ line) = null line
 
 
 
-toSExpr :: Block -> String
-toSExpr (Block ls) = concat $ map (parensAround . toStr) ls
-toSExpr (Blocks bs) = parensAround $ concat $ map toSExpr bs
+data Program = Prog [Expression]
 
-toStr :: IndentedLine -> String
-toStr (IndLine _ s) = s ++ " "
+instance Show Program where
+  show (Prog [])     = ""
+  show (Prog (x:xs)) = show x ++ "\n" ++ show (Prog xs)
 
-parensAround :: String -> String
-parensAround s = "(" ++ s ++ ")"
+data Expression = Expr IndentedLine [Expression]
+                | ExprDeeper Expression
+
+instance Show Expression where
+  show (Expr x ys) = show x ++ "\n" ++ (concat $ map (\ l -> l ++ "\n") $ map show ys)
+  show (ExprDeeper x) = show x ++ "\n"
+
+-- | Transform String to IndentedLines.
+-- Remove empty lines.
+-- Wrap lines in the Program data type and turn IndentedLines into S-Expressions
+stringToProgram :: String -> Program
+stringToProgram s = Prog $ toExpressions 0 ls []
+  where ls = filter isNotEmptyIndentedLine $ map toIndentedLine $ lines s
+          where isNotEmptyIndentedLine = not . isEmptyIndentedLine
+
+toExpressions :: Indent -> [IndentedLine] -> [IndentedLine] -> [Expression]
+toExpressions _ []     []     = []
+toExpressions _ []     (y:ys) = [ Expr y (toExpressions (nextIndent ys) ys []) ]
+toExpressions n (x:xs) []
+  | n == ind = toExpressions n   xs [ x ]
+  | n <  ind = toExpressions n   xs [ x ]
+  | n >  ind = toExpressions ind xs [ x ] -- throw error here?
+  where ind = indent x :: Indent
+toExpressions n (x:xs) (y:ys)
+  | n == ind = Expr y (toExpressions (nextIndent ys) ys []) : toExpressions n xs [ x ]
+  | n <  ind = toExpressions n xs ((y:ys) ++ [ x ])
+  | n >  ind = ExprDeeper (Expr y (toExpressions (nextIndent ys) ys [])) : toExpressions n xs [ x ] -- still problems here
+  where ind    = indent x :: Indent
+
+-- | Helper-Function for toExpressions
+nextIndent :: [IndentedLine] -> Indent
+nextIndent []     = -1
+nextIndent (l:ls) = indent l
+
+
+
+progToSExprs :: Program -> String
+progToSExprs (Prog []) = ""
+progToSExprs (Prog (x:xs)) = exprToSExpr x ++ "\n" ++ progToSExprs (Prog xs)
+
+exprToSExpr :: Expression -> String
+exprToSExpr (Expr (IndLine _ f) xs) = "(" ++ f ++ (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
+exprToSExpr (ExprDeeper x)          = "(" ++ exprToSExpr x ++ ") "
 
 
 
