@@ -17,4 +17,4 @@ module Main where
 import Haskeme
 
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = interact (progToSExprs . stringToProgram)

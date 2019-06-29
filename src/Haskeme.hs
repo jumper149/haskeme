@@ -14,6 +14,7 @@
 
 module Haskeme ( IndentedLine (..)
                , toIndentedLine
+               , Program (..)
                , stringToProgram
                , progToSExprs
                ) where
@@ -68,15 +69,19 @@ isEmptyIndentedLine (IndLine _ line) = null line
 
 
 
+-- | Hold a program as a list of Expressions.
 data Program = Prog [Expression]
+  deriving (Eq)
 
 instance Show Program where
   show (Prog [])     = ""
   show (Prog (x:xs)) = show x ++ "\n" ++ show (Prog xs)
 
+-- | An Expression will later become a S-Expression.
 data Expression = Expr IndentedLine [Expression]
                 | ExprDeeper Expression
                 | ExprsDeeper [Expression]
+  deriving (Eq)
 
 instance Show Expression where
   show (Expr x ys)      = show x ++ "\n" ++ (concat $ map (\ l -> l ++ "\n") $ map show ys)
