@@ -15,8 +15,6 @@
 module Haskeme ( IndentedLine (..)
                , toIndentedLine
                , stringToProgram
-               , mapProg
-               , extendExprDeeper
                , progToSExprs
                ) where
 
@@ -87,11 +85,14 @@ instance Show Expression where
 
 -- | Transform String to IndentedLines.
 -- Remove empty lines.
--- Wrap lines in the Program data type and turn IndentedLines into S-Expressions
+-- Wrap lines in the Program data type and turn IndentedLines into Expressions.
+-- Fix ExprDeeper to ExprsDeeper.
 stringToProgram :: String -> Program
-stringToProgram s = Prog $ toExpressions 0 ls []
+stringToProgram s = p1
   where ls = filter isNotEmptyIndentedLine $ map toIndentedLine $ lines s
           where isNotEmptyIndentedLine = not . isEmptyIndentedLine
+        p0 = Prog $ toExpressions 0 ls []
+        p1 = extendProgramDeeper p0
 
 toExpressions :: Indent -> [IndentedLine] -> [IndentedLine] -> [Expression]
 toExpressions _ []     []     = []
@@ -112,6 +113,18 @@ nextIndent :: [IndentedLine] -> Indent
 nextIndent []     = -1
 nextIndent (l:ls) = indent l
 
+
+-- | Wrapper for extending further indentation upwards in an expression.
+extendProgramDeeper :: Program -> Program
+extendProgramDeeper p = mapProg (\ x -> extendExprDeeper x []) p
+  where mapProg :: ([Expression] -> [Expression]) -> Program -> Program
+        mapProg f (Prog xs) = Prog (map (mapExprs f) xs)
+
+        mapExprs :: ([Expression] -> [Expression]) -> Expression -> Expression
+        mapExprs f (Expr x ys)      = Expr x (f $ map (mapExprs f) ys)
+        mapExprs f (ExprDeeper y)   = ExprDeeper (head $ f $ [ mapExprs f y ])
+        mapExprs f (ExprsDeeper ys) = ExprsDeeper (f $ map (mapExprs f) ys)
+
 -- | Further indentation to symbolize an extra parenthesis pair is extended upwards in the
 -- expression, as toExpressions does not handle this.
 -- Cannot be used on Expressions of the form ExprsDeeper.
@@ -120,14 +133,6 @@ extendExprDeeper []                  ys = ys
 extendExprDeeper ((ExprDeeper x):xs) ys = extendExprDeeper xs [ deepX ]
   where deepX = (ExprsDeeper (ys ++ [ x ]))
 extendExprDeeper (x             :xs) ys = extendExprDeeper xs (ys ++ [ x ])
-
-mapExprs :: ([Expression] -> [Expression]) -> Expression -> Expression
-mapExprs f (Expr x ys)      = Expr x (f $ map (mapExprs f) ys)
-mapExprs f (ExprDeeper y)   = ExprDeeper (head $ f $ [ mapExprs f y ])
-mapExprs f (ExprsDeeper ys) = ExprsDeeper (f $ map (mapExprs f) ys)
-
-mapProg :: ([Expression] -> [Expression]) -> Program -> Program
-mapProg f (Prog xs) = Prog (map (mapExprs f) xs)
 
 
 
@@ -140,11 +145,3 @@ exprToSExpr (Expr (IndLine _ f) xs) = "(" ++ f ++ (concat $ map ((" "++) . exprT
 exprToSExpr (ExprDeeper x)          = "(" ++ exprToSExpr x ++ ") "
 exprToSExpr (ExprsDeeper (x:xs))    = "(" ++ exprToSExpr x ++
                                         (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
-
-
-
-
-
-
-
-
