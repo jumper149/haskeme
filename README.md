@@ -14,6 +14,3 @@ Haskeme can also use `StdIn` and `StdOut`:
 ### Options
 - `-i` or `--input` to specify input file
 - `-o` or `--output` to specify output file
-
-## Dependencies
-- `ghc` (make)
