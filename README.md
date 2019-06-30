@@ -7,7 +7,7 @@ Haskeme can read and write files:
 
     haskeme --input "program.hss" --output "program.ss"
 
-Haskeme reads a program from StdIn:
+Haskeme can also use `StdIn` and `StdOut`:
 
     cat "program.hss" | haskeme > "program.ss"
 
