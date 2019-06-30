@@ -28,7 +28,7 @@ tabSize = 4
 
 type Indent = Int
 
--- | Hold Indent and Line in a data type
+-- | Hold Indent and Line in a data type.
 data IndentedLine = IndLine Indent String
                       deriving (Eq)
 
