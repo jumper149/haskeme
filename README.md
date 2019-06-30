@@ -59,3 +59,26 @@ I-Expressions are indented expressions and are translated by few simple rules:
               y (* x x)
             + y 1
     ```
+    
+## Install
+- install from [Hackage](https://hackage.haskell.org/package/haskeme) with cabal:
+
+    ```
+    cabal install haskeme
+    ```
+
+- clone from [GitHub](https://github.com/jumper149/haskeme) and compile with `cabal`:
+    
+    ```
+    git clone https://github.com/jumper149/haskeme.git
+    cd haskeme
+    cabal build
+    ```
+
+- clone from GitHub and compile with ghc (not recommended, use this [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=haskeme) as a template)
+
+- install from [AUR](https://aur.archlinux.org/packages/haskeme/) (only ArchLinux-Users)
+
+### Dependencies
+- `ghc` (make)
+- `cabal` (opt. make)
