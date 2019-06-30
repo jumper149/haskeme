@@ -105,7 +105,7 @@ toExpressions _ []     (y:ys) = [ Expr y (toExpressions (nextIndent ys) ys []) ]
 toExpressions n (x:xs) []
   | n == ind = toExpressions n   xs [ x ]
   | n <  ind = toExpressions n   xs [ x ]
-  | n >  ind = toExpressions ind xs [ x ] -- throw error here?
+  | n >  ind = toExpressions ind xs [ x ] -- this case should not occur!
   where ind = indent x :: Indent
 toExpressions n (x:xs) (y:ys)
   | n == ind = Expr y (toExpressions (nextIndent ys) ys []) : toExpressions n xs [ x ]
@@ -117,6 +117,7 @@ toExpressions n (x:xs) (y:ys)
 nextIndent :: [IndentedLine] -> Indent
 nextIndent []     = -1
 nextIndent (l:ls) = indent l
+
 
 
 -- | Wrapper for extending further indentation upwards in an expression.
@@ -137,14 +138,18 @@ extendExprDeeper :: [Expression] -> [Expression] -> [Expression]
 extendExprDeeper []                  ys = ys
 extendExprDeeper ((ExprDeeper x):xs) ys = extendExprDeeper xs [ deepX ]
   where deepX = (ExprsDeeper (ys ++ [ x ]))
+extendExprDeeper ((ExprsDeeper xs):_) _ = error $ "Deeper Expression already extended upwards at: '" ++
+                                            show (ExprsDeeper xs)
 extendExprDeeper (x             :xs) ys = extendExprDeeper xs (ys ++ [ x ])
 
 
 
+-- | Return a correct Program of S-Expressions.
 progToSExprs :: Program -> String
 progToSExprs (Prog []) = ""
 progToSExprs (Prog (x:xs)) = exprToSExpr x ++ "\n" ++ progToSExprs (Prog xs)
 
+-- | Turn a Expression into the corresponding S-Expression.
 exprToSExpr :: Expression -> String
 exprToSExpr (Expr (IndLine _ f) xs) = "(" ++ f ++ (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
 exprToSExpr (ExprDeeper x)          = "(" ++ exprToSExpr x ++ ") "
