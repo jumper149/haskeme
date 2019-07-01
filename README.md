@@ -36,7 +36,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
           let
               y
                 * x x
-        + y 1
+            + y 1
     ```
 
 - S-Expressions:
@@ -59,7 +59,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
               y (* x x)
             + y 1
     ```
-    
+
 ## Install
 - install from [Hackage](https://hackage.haskell.org/package/haskeme) with cabal:
 
