@@ -67,6 +67,17 @@ toIndentedLineTab (IndLine n line)
 isEmptyIndentedLine :: IndentedLine -> Bool
 isEmptyIndentedLine (IndLine _ line) = null line
 
+-- | Checks if a line is a comment.
+isCommentIndentedLine :: IndentedLine -> Bool
+isCommentIndentedLine (IndLine _ [])     = False
+isCommentIndentedLine (IndLine _ (x:xs)) = x == ';'
+
+-- | Checks if a line is relevant for a Program.
+isProgramLine :: IndentedLine -> Bool
+isProgramLine l
+  | isCommentIndentedLine l = False
+  | isEmptyIndentedLine l   = False
+  | otherwise               = True
 
 
 -- | Hold a program as a list of Expressions.
@@ -94,8 +105,7 @@ instance Show Expression where
 -- Fix ExprDeeper to ExprsDeeper.
 stringToProgram :: String -> Program
 stringToProgram s = p1
-  where ls = filter isNotEmptyIndentedLine $ map toIndentedLine $ lines s
-          where isNotEmptyIndentedLine = not . isEmptyIndentedLine
+  where ls = filter isProgramLine $ map toIndentedLine $ lines s
         p0 = Prog $ toExpressions 0 ls []
         p1 = extendProgramDeeper p0
 
@@ -149,7 +159,7 @@ progToSExprs :: Program -> String
 progToSExprs (Prog []) = ""
 progToSExprs (Prog (x:xs)) = exprToSExpr x ++ "\n" ++ progToSExprs (Prog xs)
 
--- | Turn a Expression into the corresponding S-Expression.
+-- | Turn an Expression into the corresponding S-Expression.
 exprToSExpr :: Expression -> String
 exprToSExpr (Expr (IndLine _ f) xs) = "(" ++ f ++ (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
 exprToSExpr (ExprDeeper x)          = "(" ++ exprToSExpr x ++ ") "
