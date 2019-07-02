@@ -80,6 +80,7 @@ isProgramLine l
   | otherwise               = True
 
 
+
 -- | Hold a program as a list of Expressions.
 data Program = Prog [Expression]
   deriving (Eq)
