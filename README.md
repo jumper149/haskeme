@@ -23,6 +23,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
 - more indentation as the expression above translates to a new S-Expression as an argument to the prior one
 - less indentation as the expression above, but still more indentation as another expression above translates to a new S-Expression, while the prior and further indented block gets wrapped in extra parentheses (look at the `let`-example)
 - S-Expression can be mixed in while staying in a single line (look at the example for mixed expressions)
+- full line comments starting with `;` are ignored
 - a new line can be prevented from being turned into an S-Expression by prepending it with `:` after the indent (look at the example for prevented expressions)
 
 
@@ -69,21 +70,21 @@ I-Expressions are indented expressions and are translated by few simple rules:
     ```
 
 ## Install
-- install from [Hackage](https://hackage.haskell.org/package/haskeme) with cabal:
+- install from [Hackage](https://hackage.haskell.org/package/haskeme) with `cabal`:
 
     ```
     cabal install haskeme
     ```
 
 - clone from [GitHub](https://github.com/jumper149/haskeme) and compile with `cabal`:
-    
+
     ```
     git clone https://github.com/jumper149/haskeme.git
     cd haskeme
     cabal build
     ```
 
-- clone from GitHub and compile with ghc (not recommended, use this [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=haskeme) as a template)
+- clone from GitHub and compile with `ghc` (not recommended, use this [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=haskeme) as a template)
 
 - install from [AUR](https://aur.archlinux.org/packages/haskeme/) (only ArchLinux-Users)
 
