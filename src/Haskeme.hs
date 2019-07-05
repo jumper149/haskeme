@@ -24,6 +24,9 @@ module Haskeme ( IndentedLine (..)
 -- | Set how many spaces an expanded tab takes.
 tabSize = 4
 
+-- | Character that marks a line to not be evaluated/turned into an S-Expression.
+preventSExprChar = ':'
+
 
 
 type Indent = Int
@@ -161,8 +164,20 @@ progToSExprs (Prog []) = ""
 progToSExprs (Prog (x:xs)) = exprToSExpr x ++ "\n" ++ progToSExprs (Prog xs)
 
 -- | Turn an Expression into the corresponding S-Expression.
+-- | Handles prevention from turning into S-Expression, if Line starts with ':' after the Indent.
 exprToSExpr :: Expression -> String
-exprToSExpr (Expr (IndLine _ f) xs) = "(" ++ f ++ (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
+exprToSExpr (Expr (IndLine n f) xs)
+  | head f == ':' = if null xs
+                    then trimLine f
+                    else error "Expression with arguments not to be evaluated: " ++
+                           show (IndLine n f)
+  | otherwise     = "(" ++ f ++ (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"
+  where trimLine :: String -> String
+        trimLine []     = []
+        trimLine (s:ss)
+          | s == preventSExprChar = trimLine ss
+          | s == ' '              = trimLine ss
+          | otherwise             = s : ss
 exprToSExpr (ExprDeeper x)          = "(" ++ exprToSExpr x ++ ") "
 exprToSExpr (ExprsDeeper (x:xs))    = "(" ++ exprToSExpr x ++
                                         (concat $ map ((" "++) . exprToSExpr) xs) ++ ")"

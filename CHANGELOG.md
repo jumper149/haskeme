@@ -12,3 +12,8 @@
 
 * Full line comments starting with ';' are now being handled.
 * Comments can have whitespace in front of ';'.
+
+## 0.1.0.3 -- 2019/07/05
+
+* Lines that are not supposed to be turned to S-Expressions are now handled by prepending ':' after
+  the indent.
