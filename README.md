@@ -31,42 +31,39 @@ I-Expressions are indented expressions and are translated by few simple rules:
 - I-Expressions:
 
     ```
-    define
-      f
-        lambda
-          x
-          let
-              y
-                * x x
-            if
-              > x 0
-              + y 1
-              : #f
+    define f
+      lambda
+        x
+        let
+            y
+              * x x
+          if
+            > x 0
+            + y 1
+            : #f
     ```
 
 - S-Expressions:
 
     ```
-    (define
-      (f
-        (lambda (x)
-          (let ((y (* x x)))
-            (if (> x 0)
-                (+ y 1)
-                #f)))))
+    (define f
+      (lambda (x)
+        (let ((y (* x x)))
+          (if (> x 0)
+              (+ y 1)
+              #f))))
     ```
 
 - mixed I- and S-Expressions:
 
     ```
-    define
-      f
-        lambda (x)
-          let
-              y (* x x)
-            if (> x 0)
-               + y 1
-               : #f
+    define f
+      lambda (x)
+        let
+            y (* x x)
+          if (> x 0)
+             + y 1
+             : #f
     ```
 
 ## Install
