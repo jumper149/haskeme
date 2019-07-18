@@ -30,7 +30,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
 ### Example
 - I-Expressions:
 
-    ```
+    ```racket
     define f
       lambda
         x
@@ -45,7 +45,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
 
 - S-Expressions:
 
-    ```
+    ```racket
     (define f
       (lambda (x)
         (let ((y (* x x)))
@@ -56,7 +56,7 @@ I-Expressions are indented expressions and are translated by few simple rules:
 
 - mixed I- and S-Expressions:
 
-    ```
+    ```racket
     define f
       lambda (x)
         let
