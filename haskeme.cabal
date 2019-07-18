@@ -1,5 +1,5 @@
 name:                haskeme
-version:             0.1.0.3
+version:             0.1.0.4
 synopsis:            Compiler from I- to S-Expressions for the Scheme Programming Language
 description:         This compiler translates Scheme source code written with I-Expressions (indented expressions) into S-Expressions (symbolic expressions).
 homepage:            https://github.com/jumper149/haskeme

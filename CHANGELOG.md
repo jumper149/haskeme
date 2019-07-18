@@ -17,3 +17,7 @@
 
 * Lines that are not supposed to be turned to S-Expressions are now handled by prepending ':' after
   the indent.
+
+## 0.1.0.4 -- 2019/07/19
+
+* Fixed README.
